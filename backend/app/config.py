@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     database_url: str = "postgresql+psycopg://monitor:monitor@localhost:5432/monitor_vagas"
 
+    # Token do bot criado no BotFather. Vazio = Telegram desligado (útil nos testes).
+    telegram_bot_token: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:
