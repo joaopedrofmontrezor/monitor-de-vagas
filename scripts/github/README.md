@@ -34,7 +34,7 @@ a partir dos arquivos em `backlog/`. Cada issue é um `.md` com um cabeçalho si
      --responsavel lucas=USUARIO_DO_LUCAS \
      --projeto monitor-de-vagas/1
    ```
-8. A proteção da `main` (1 aprovação + CI verde) é ligada pelo Vinicius na issue #2, depois que
+8. A proteção da `main` (sem push direto + CI verde) é ligada pelo Vinicius na issue #2, depois que
    os workflows existirem. Antes disso, não há check de CI para exigir.
 
 ## Por que a numeração importa

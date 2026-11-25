@@ -1,5 +1,3 @@
-"""Ponto de entrada da API: cria o FastAPI e registra as rotas."""
-
 from fastapi import FastAPI
 
 from app.api.routes import health

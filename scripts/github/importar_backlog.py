@@ -1,24 +1,3 @@
-"""Importa o backlog do MVP para o GitHub: labels, milestones e issues.
-
-Uso (rode da raiz do repositório):
-
-    # 1) veja o que seria feito, sem tocar no GitHub
-    python scripts/github/importar_backlog.py --repo ORG/monitor-de-vagas --dry-run
-
-    # 2) importe de verdade, já atribuindo os responsáveis
-    python scripts/github/importar_backlog.py --repo ORG/monitor-de-vagas \
-        --responsavel joao=usuario-do-joao \
-        --responsavel vinicius=usuario-do-vinicius \
-        --responsavel lucas=usuario-do-lucas \
-        --projeto ORG/1
-
-Requisitos: GitHub CLI (`gh`) autenticado (`gh auth login`). O script usa só a
-API REST. Apenas o --projeto usa GraphQL e exige o escopo `project`
-(`gh auth refresh -s project`).
-
-O script é idempotente: labels são atualizadas, milestones e issues que já
-existem (mesmo título) são puladas. Pode rodar de novo sem duplicar nada.
-"""
 
 from __future__ import annotations
 
@@ -32,9 +11,7 @@ from pathlib import Path
 
 PASTA_BACKLOG = Path(__file__).parent / "backlog"
 
-# nome -> (cor sem #, descrição)
 LABELS: dict[str, tuple[str, str]] = {
-    # tipo (bate com o Conventional Commit)
     "feat": ("1d76db", "Nova funcionalidade"),
     "fix": ("d73a4a", "Correção de bug"),
     "chore": ("cfd3d7", "Manutenção, configuração, estrutura"),
@@ -42,19 +19,16 @@ LABELS: dict[str, tuple[str, str]] = {
     "test": ("bfd4f2", "Testes"),
     "ci": ("5319e7", "Integração contínua"),
     "spike": ("fbca04", "Pesquisa com prazo curto antes de implementar"),
-    # área
     "backend": ("0e8a16", "API e regras de negócio (FastAPI)"),
     "frontend": ("c2e0c6", "Next.js"),
     "coleta": ("006b75", "Coletores e scraping"),
     "dados": ("7057ff", "Estatísticas e painel"),
     "notificacoes": ("e99695", "Telegram e e-mail"),
     "infra": ("5a5a5a", "Docker, banco, CI, deploy"),
-    # prioridade
     "p0": ("b60205", "Sem isso a demo da sprint não acontece"),
     "p1": ("f9d0c4", "Importante, mas não bloqueia a demo"),
 }
 
-# título -> data de entrega (sexta-feira da sprint)
 MILESTONES: dict[str, str] = {
     "Sprint 1": "2026-12-04",
     "Sprint 2": "2026-12-11",
@@ -80,11 +54,10 @@ class Issue:
 
 
 class ErroBacklog(ValueError):
-    """Arquivo de backlog inválido."""
+    pass
 
 
 def parse_issue(texto: str, arquivo: str = "") -> Issue:
-    """Lê um arquivo de issue: front matter simples (chave: valor) + corpo markdown."""
     partes = texto.split("---", 2)
     if len(partes) < 3 or partes[0].strip():
         raise ErroBacklog(f"{arquivo}: front matter ausente (precisa começar com ---)")
@@ -123,7 +96,6 @@ def parse_issue(texto: str, arquivo: str = "") -> Issue:
 
 
 def validar(issues: list[Issue]) -> None:
-    """Garante numeração 1..N sem buracos e labels/sprints/responsáveis conhecidos."""
     erros: list[str] = []
     numeros = [i.numero for i in issues]
     if sorted(numeros) != list(range(1, len(issues) + 1)):
@@ -151,7 +123,6 @@ def carregar_backlog(pasta: Path = PASTA_BACKLOG) -> list[Issue]:
 
 
 def pontos_por_pessoa(issues: list[Issue]) -> dict[str, dict[str, int]]:
-    """{sprint: {responsavel: pontos}} para conferir o equilíbrio."""
     resumo: dict[str, dict[str, int]] = {}
     for i in issues:
         sprint = resumo.setdefault(i.sprint, {})
@@ -160,7 +131,6 @@ def pontos_por_pessoa(issues: list[Issue]) -> dict[str, dict[str, int]]:
 
 
 def parse_responsaveis(pares: list[str]) -> dict[str, str]:
-    """['joao=jp-dev'] -> {'joao': 'jp-dev'}"""
     resultado: dict[str, str] = {}
     for par in pares:
         apelido, sep, usuario = par.partition("=")
@@ -176,7 +146,6 @@ def parse_responsaveis(pares: list[str]) -> dict[str, str]:
 def montar_payload_issue(
     issue: Issue, milestones: dict[str, int], responsaveis: dict[str, str]
 ) -> dict[str, object]:
-    """Corpo JSON do POST /repos/{repo}/issues (API REST)."""
     payload: dict[str, object] = {
         "title": issue.titulo,
         "body": issue.corpo_completo(),
@@ -190,20 +159,15 @@ def montar_payload_issue(
 
 
 def numero_da_url(url: str) -> int | None:
-    """https://github.com/org/repo/issues/12 -> 12"""
     m = re.search(r"/issues/(\d+)\s*$", url.strip())
     return int(m.group(1)) if m else None
 
 
-# ---------------------------------------------------------------- execução
-# Só a API REST (gh api), sem GraphQL: funciona com tokens de escopo mínimo.
 
 
 def _api(caminho: str, metodo: str = "GET", corpo: dict | None = None):
-    """Chama a API REST via `gh api`. GET pagina e devolve uma lista com todos os itens."""
     args = ["gh", "api", caminho, "--method", metodo]
     if metodo == "GET":
-        # um item JSON por linha, mesmo com várias páginas
         args += ["--paginate", "--jq", ".[] | tojson"]
     if corpo is not None:
         args += ["--input", "-"]
@@ -259,7 +223,6 @@ def importar(repo: str, responsaveis: dict[str, str], projeto: str | None, dry_r
     print("\nIssues")
     ja_criadas: set[str] = set()
     if not dry_run:
-        # o endpoint de issues também devolve PRs; eles não contam aqui
         ja_criadas = {
             i["title"] for i in _api(f"repos/{repo}/issues?state=all&per_page=100") if "pull_request" not in i
         }
@@ -281,7 +244,6 @@ def importar(repo: str, responsaveis: dict[str, str], projeto: str | None, dry_r
             print(f"  ATENÇÃO: {responsaveis[issue.responsavel]} não foi atribuído "
                   "(convite de colaborador pendente?)")
         if projeto:
-            # Projects só existem na API GraphQL; precisa do escopo "project" no gh
             dono_proj, _, numero_projeto = projeto.partition("/")
             subprocess.run(["gh", "project", "item-add", numero_projeto, "--owner", dono_proj,
                             "--url", criada["html_url"]], check=True, text=True, capture_output=True)
@@ -290,7 +252,7 @@ def importar(repo: str, responsaveis: dict[str, str], projeto: str | None, dry_r
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description="Importa o backlog do MVP para o GitHub: labels, milestones e issues.", formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--repo", required=True, help="dono/repositório, ex.: monitor-de-vagas/monitor-de-vagas")
     parser.add_argument("--responsavel", action="append", default=[], metavar="APELIDO=USUARIO",
                         help="mapeia joao/vinicius/lucas para o usuário do GitHub (repita para cada um)")

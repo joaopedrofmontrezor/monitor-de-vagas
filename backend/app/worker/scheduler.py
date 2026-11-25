@@ -1,10 +1,3 @@
-"""Processo `worker`: por enquanto só mantém o container vivo.
-
-Na issue #4 este arquivo passa a usar o APScheduler para disparar um job por
-coletor. Já existe agora para o `docker compose up` subir o serviço `worker` e o
-time ver, desde o primeiro dia, que API e worker são processos separados (ADR-0004).
-"""
-
 import logging
 import signal
 import threading
@@ -18,7 +11,6 @@ def main() -> None:
     logging.basicConfig(level=settings.log_level, format="%(asctime)s %(name)s %(message)s")
     parar = threading.Event()
 
-    
     signal.signal(signal.SIGTERM, lambda *_: parar.set())
     signal.signal(signal.SIGINT, lambda *_: parar.set())
 
