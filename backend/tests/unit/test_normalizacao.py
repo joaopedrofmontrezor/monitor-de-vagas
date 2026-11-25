@@ -1,5 +1,3 @@
-"""Casos reais levantados no spike (#5). A origem de cada exemplo está no comentário."""
-
 import pytest
 
 from app.services.normalizacao import (
@@ -13,11 +11,9 @@ from app.services.normalizacao import (
 @pytest.mark.parametrize(
     ("entrada", "esperado"),
     [
-        
         ("São Paulo - SP", "São Paulo - SP"),
         ("sp", "São Paulo - SP"),
         ("São Paulo/SP", "São Paulo - SP"),
-        
         ("São Paulo, São Paulo, Brazil", "São Paulo - SP"),
         ("Osasco, SP", "Osasco - SP"),
         ("Osasco, Sao Paulo, Brazil", "Osasco - SP"),
@@ -31,15 +27,12 @@ from app.services.normalizacao import (
         ("Curitiba or São Paulo | On-site", "Curitiba - PR"),
         ("Rio de Janeiro; São Paulo", "Rio de Janeiro - RJ"),
         ("Remote in Buenos Aires", "Buenos Aires"),
-        
         ("Híbrido em São Paulo/SP", "São Paulo - SP"),
         ("Híbrido - São Paulo, SP (Av. Brigadeiro Faria Lima, 2391, cj 7)", "São Paulo - SP"),
         ("Vila Olímpia - SP", "Vila Olímpia - SP"),
         ("[HÍBRIDO - SP]", "São Paulo - SP"),
-        
         ("São Paulo / SP", "São Paulo - SP"),
         ("Betim / MG", "Betim - MG"),
-       
         ("SAO PAULO-SP", "São Paulo - SP"),
         ("  florianopolis  ", "Florianópolis - SC"),
         ("SÃO JOSÉ DO RIO PRETO / SP", "São José do Rio Preto - SP"),
@@ -52,9 +45,19 @@ def test_normalizar_cidade(entrada, esperado):
 
 @pytest.mark.parametrize(
     "entrada",
-    [None, "", "Remoto", "Brasil", "Brazil", "Remoto - Brasil", "Localização não informada",
-     "Minas Gerais", "MG", "n/a"],
-)  
+    [
+        None,
+        "",
+        "Remoto",
+        "Brasil",
+        "Brazil",
+        "Remoto - Brasil",
+        "Localização não informada",
+        "Minas Gerais",
+        "MG",
+        "n/a",
+    ],
+)
 def test_normalizar_cidade_sem_cidade_devolve_none(entrada):
     assert normalizar_cidade(entrada) is None
 
@@ -75,17 +78,13 @@ def test_mesma_cidade_escrita_de_jeitos_diferentes_vira_uma_so():
         (("nosso trabalho é 100% remoto",), True),
         (("Home office",), True),
         (("Remote in Buenos Aires",), True),
-        
         (("Remoto (com possibilidade de Híbrido/Presencial a depender do acordo)",), True),
         (("Híbrido: 3x presencial e 2x remoto",), False),
         (("modelo presencial com flexibilidade (3x por semana no escritório)",), False),
         (("Curitiba | On-site",), False),
-        
         (("Esta vaga não é remota",), False),
         (("Presencial, sem home office",), False),
-        
         (("Experiência com remoção de dados",), False),
-        
         (("São Paulo - SP", "[Remoto] Estágio em Dados"), True),
         (("Híbrido", "[Remoto] Estágio em Dados"), False),
         ((None, "", "Estágio em Dados"), False),

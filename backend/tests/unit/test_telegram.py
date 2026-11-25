@@ -20,7 +20,6 @@ class VagaFake:
 
 
 def cliente_com(respostas, chamadas):
-    """Cliente cujo HTTP devolve as `respostas` em ordem e anota cada requisição."""
     fila = list(respostas)
 
     def responder(request: httpx.Request) -> httpx.Response:
@@ -53,9 +52,6 @@ def limite(retry_after):
             "parameters": {"retry_after": retry_after},
         },
     )
-
-
-# ---------- envio ----------
 
 
 def test_enviar_chama_sendmessage_com_o_corpo_certo():
@@ -104,7 +100,7 @@ def test_429_em_todas_as_tentativas_levanta_erro():
     with pytest.raises(ErroTelegram, match="429"):
         cliente.enviar(987, "oi")
     assert len(chamadas) == 3
-    assert esperas == [1.0, 1.0]  # não dorme depois da última tentativa
+    assert esperas == [1.0, 1.0]
 
 
 def test_retry_after_longo_demais_desiste_sem_travar_o_worker():
@@ -152,15 +148,12 @@ def test_erro_de_rede_nao_expoe_o_token():
     with pytest.raises(ErroTelegram) as exc_info:
         cliente.enviar(987, "oi")
     assert TOKEN not in str(exc_info.value)
-    assert exc_info.value.__cause__ is None  
+    assert exc_info.value.__cause__ is None
 
 
 def test_token_vazio_falha_logo():
     with pytest.raises(ValueError, match="TELEGRAM_BOT_TOKEN"):
         ClienteTelegram("")
-
-
-
 
 
 def test_formatar_vaga_completa():
@@ -204,9 +197,6 @@ def test_formatar_vaga_corta_titulo_gigante():
 
     titulo = texto.splitlines()[0]
     assert titulo == "<b>" + "x" * 199 + "…</b>"
-
-
-
 
 
 def test_cli_sem_token_avisa(monkeypatch, capsys):

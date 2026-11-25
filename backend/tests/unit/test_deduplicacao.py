@@ -12,12 +12,10 @@ from app.services.normalizacao import normalizar_cidade
         ("https://site.com/v?b=2&a=1&gclid=abc", "https://site.com/v?a=1&b=2"),
         ("  https://site.com/vaga/1  ", "https://site.com/vaga/1"),
         ("https://site.com/vaga/1?fbclid=x&ref=linkedin&UTM_Campaign=y", "https://site.com/vaga/1"),
-        
         (
             "https://empresa.com/carreiras?gh_jid=8243837002&gh_src=abc123",
             "https://empresa.com/carreiras?gh_jid=8243837002",
         ),
-        
         ("https://site.com/Vaga/ABC", "https://site.com/Vaga/ABC"),
         ("https://site.com/busca?q=&pagina=2", "https://site.com/busca?pagina=2&q="),
     ],
@@ -49,11 +47,10 @@ def test_chave_diferente_para_cidades_diferentes():
 
 def test_chave_aceita_empresa_e_cidade_vazias():
     assert chave_conteudo("Estágio", None, None) == chave_conteudo("estágio", "", "")
-    assert len(chave_conteudo("Estágio", None, None)) == 64  
+    assert len(chave_conteudo("Estágio", None, None)) == 64
 
 
 def test_chave_com_cidade_normalizada_junta_fontes_diferentes():
-    """O motivo de normalizar a cidade ANTES de calcular a chave."""
     cidade_greenhouse = normalizar_cidade("Osasco, Sao Paulo, Brazil")
     cidade_github = normalizar_cidade("Osasco - SP")
     greenhouse = chave_conteudo("Estágio em Dados", "ACME", cidade_greenhouse)

@@ -1,18 +1,3 @@
-"""Cliente de envio do Telegram (Bot API, método sendMessage).
-
-Pontos de projeto:
-- O `httpx.Client` é injetável. Nos testes passamos um com `httpx.MockTransport`,
-  então nenhum teste fala com o Telegram de verdade.
-- 429 (limite de envio) e 5xx (instabilidade) tentam de novo, esperando o
-  `retry_after` que o próprio Telegram informa. Outros erros (chat inexistente, bot
-  bloqueado pelo usuário) não adiantam repetir: viram `ErroTelegram` na hora.
-- O token vai na URL da Bot API. Por isso nenhuma mensagem de erro daqui inclui a
-  URL: um log de exceção não pode vazar o token.
-
-Teste manual (com TELEGRAM_BOT_TOKEN no .env):
-    python -m app.notificacoes.telegram --chat-id 123456789 "Olá do Monitor de Vagas"
-"""
-
 import argparse
 import html
 import logging
@@ -27,21 +12,15 @@ from app.config import settings
 log = logging.getLogger(__name__)
 
 API_TELEGRAM = "https://api.telegram.org"
-ESPERA_MAXIMA_S = 30  # retry_after maior que isso: desiste, para não travar o worker
+ESPERA_MAXIMA_S = 30
 LIMITE_TITULO = 200
 
 
 class ErroTelegram(Exception):
-    """Falha ao enviar. A mensagem nunca contém o token."""
+    pass
 
 
 class VagaParaAlerta(Protocol):
-    """O mínimo que uma vaga precisa ter para virar alerta.
-
-    É um Protocol (tipagem estrutural): serve tanto para a `VagaColetada` do coletor
-    (#6) quanto para o model `Vaga` do banco (#3), sem este módulo depender de nenhum dos dois.
-    """
-
     titulo: str
     url: str
     empresa: str | None
@@ -50,7 +29,6 @@ class VagaParaAlerta(Protocol):
 
 
 def formatar_vaga(vaga: VagaParaAlerta) -> str:
-    """Mensagem em HTML do Telegram: título, empresa, local e link."""
     titulo = vaga.titulo.strip()
     if len(titulo) > LIMITE_TITULO:
         titulo = titulo[: LIMITE_TITULO - 1].rstrip() + "…"
@@ -81,7 +59,6 @@ class ClienteTelegram:
         self._dormir = dormir
 
     def enviar(self, chat_id: int | str, texto: str) -> None:
-        """Envia `texto` (HTML do Telegram) para `chat_id`. Levanta ErroTelegram se falhar."""
         corpo = {
             "chat_id": chat_id,
             "text": texto,
@@ -92,7 +69,6 @@ class ClienteTelegram:
             try:
                 resp = self._http.post(self._url, json=corpo)
             except httpx.HTTPError as exc:
-                # str(exc) pode conter a URL com o token: usamos só o nome da classe
                 raise ErroTelegram(
                     f"falha de rede ao falar com o Telegram ({type(exc).__name__})"
                 ) from None

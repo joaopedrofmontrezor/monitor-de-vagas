@@ -10,7 +10,6 @@ from app.main import app
 
 @pytest.fixture
 def client():
-    """Cliente HTTP da API. Limpa os overrides no fim para um teste não vazar no outro."""
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
@@ -18,7 +17,6 @@ def client():
 
 @pytest.fixture
 def sobrescrever_db():
-    """Troca o banco da API por um objeto falso: `sobrescrever_db(FakeSession())`."""
 
     def _trocar(sessao_falsa):
         app.dependency_overrides[get_db] = lambda: sessao_falsa
@@ -28,10 +26,6 @@ def sobrescrever_db():
 
 @pytest.fixture(scope="session")
 def banco_disponivel():
-    """Pula o teste de integração quando o Postgres não está rodando (ex.: no notebook, sem Docker).
-
-    No CI (#2) e no `make test` o banco existe, então esses testes rodam de verdade.
-    """
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
