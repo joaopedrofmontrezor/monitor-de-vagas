@@ -1,0 +1,23 @@
+# Instalação (uma vez por máquina): pip install pre-commit ; pre-commit install
+# Depois disso os hooks rodam sozinhos em todo `git commit`.
+# O eslint do front entra aqui na issue #10.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.6  # mesma versão do pyproject.toml
+    hooks:
+      - id: ruff-check
+        args: ["--fix"]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/

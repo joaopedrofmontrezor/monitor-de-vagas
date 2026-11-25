@@ -1,0 +1,49 @@
+# Ambiente local completo: `make up` (ou `docker compose up -d --build`).
+# O serviço `frontend` entra na issue #10 e o `mailpit` na #20.
+
+x-backend: &backend
+  build: ./backend
+  env_file: .env
+  environment:
+    # Dentro da rede do compose o banco se chama "db", não "localhost".
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    # No Windows, mudanças em arquivos montados nem sempre chegam ao container;
+    # polling garante que o --reload percebe a alteração.
+    WATCHFILES_FORCE_POLLING: "true"
+  volumes:
+    - ./backend:/app
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:17-alpine
+    env_file: .env
+    ports:
+      - "${POSTGRES_PORTA:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    <<: *backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "${API_PORTA:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  worker:
+    <<: *backend
+    command: python -m app.worker.scheduler
+
+volumes:
+  pgdata:

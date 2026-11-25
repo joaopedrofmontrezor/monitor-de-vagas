@@ -1,0 +1,7 @@
+# Repositório sempre com fim de linha LF, mesmo editando no Windows.
+# Evita diffs gigantes "mudou tudo" e scripts quebrando dentro do container Linux.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
