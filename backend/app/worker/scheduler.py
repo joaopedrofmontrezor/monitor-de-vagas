@@ -18,7 +18,7 @@ def main() -> None:
     logging.basicConfig(level=settings.log_level, format="%(asctime)s %(name)s %(message)s")
     parar = threading.Event()
 
-    # docker compose stop envia SIGTERM; saímos na hora em vez de esperar o timeout de 10 s
+    
     signal.signal(signal.SIGTERM, lambda *_: parar.set())
     signal.signal(signal.SIGINT, lambda *_: parar.set())
 
