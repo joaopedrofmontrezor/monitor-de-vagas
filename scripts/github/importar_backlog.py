@@ -12,8 +12,9 @@ Uso (rode da raiz do repositório):
         --responsavel lucas=usuario-do-lucas \
         --projeto ORG/1
 
-Requisitos: GitHub CLI (`gh`) autenticado (`gh auth login`). Para usar
---projeto, o token precisa do escopo `project` (`gh auth refresh -s project`).
+Requisitos: GitHub CLI (`gh`) autenticado (`gh auth login`). O script usa só a
+API REST. Apenas o --projeto usa GraphQL e exige o escopo `project`
+(`gh auth refresh -s project`).
 
 O script é idempotente: labels são atualizadas, milestones e issues que já
 existem (mesmo título) são puladas. Pode rodar de novo sem duplicar nada.
@@ -172,19 +173,20 @@ def parse_responsaveis(pares: list[str]) -> dict[str, str]:
     return resultado
 
 
-def montar_comando_issue(issue: Issue, repo: str, responsaveis: dict[str, str]) -> list[str]:
-    cmd = [
-        "gh", "issue", "create",
-        "--repo", repo,
-        "--title", issue.titulo,
-        "--body", issue.corpo_completo(),
-        "--milestone", issue.sprint,
-    ]
-    for label in issue.labels:
-        cmd += ["--label", label]
+def montar_payload_issue(
+    issue: Issue, milestones: dict[str, int], responsaveis: dict[str, str]
+) -> dict[str, object]:
+    """Corpo JSON do POST /repos/{repo}/issues (API REST)."""
+    payload: dict[str, object] = {
+        "title": issue.titulo,
+        "body": issue.corpo_completo(),
+        "labels": issue.labels,
+    }
+    if issue.sprint in milestones:
+        payload["milestone"] = milestones[issue.sprint]
     if issue.responsavel in responsaveis:
-        cmd += ["--assignee", responsaveis[issue.responsavel]]
-    return cmd
+        payload["assignees"] = [responsaveis[issue.responsavel]]
+    return payload
 
 
 def numero_da_url(url: str) -> int | None:
@@ -194,31 +196,28 @@ def numero_da_url(url: str) -> int | None:
 
 
 # ---------------------------------------------------------------- execução
+# Só a API REST (gh api), sem GraphQL: funciona com tokens de escopo mínimo.
 
 
-def _gh(args: list[str], dry_run: bool, capturar: bool = False) -> str:
-    if dry_run:
-        exibicao = [a if len(a) < 80 else a[:77] + "..." for a in args]
-        print("  [dry-run]", " ".join(exibicao).replace("\n", " "))
-        return ""
-    res = subprocess.run(args, check=True, text=True, capture_output=True)
-    return res.stdout if capturar else res.stdout.strip()
+def _api(caminho: str, metodo: str = "GET", corpo: dict | None = None):
+    """Chama a API REST via `gh api`. GET pagina e devolve uma lista com todos os itens."""
+    args = ["gh", "api", caminho, "--method", metodo]
+    if metodo == "GET":
+        # um item JSON por linha, mesmo com várias páginas
+        args += ["--paginate", "--jq", ".[] | tojson"]
+    if corpo is not None:
+        args += ["--input", "-"]
+    res = subprocess.run(
+        args, check=True, text=True, capture_output=True, encoding="utf-8",
+        input=json.dumps(corpo) if corpo is not None else None,
+    )
+    if metodo == "GET":
+        return [json.loads(linha) for linha in res.stdout.splitlines() if linha.strip()]
+    return json.loads(res.stdout) if res.stdout.strip() else None
 
 
-def _titulos_existentes(repo: str) -> set[str]:
-    saida = subprocess.run(
-        ["gh", "issue", "list", "--repo", repo, "--state", "all", "--limit", "500", "--json", "title"],
-        check=True, text=True, capture_output=True,
-    ).stdout
-    return {i["title"] for i in json.loads(saida or "[]")}
-
-
-def _milestones_existentes(repo: str) -> set[str]:
-    saida = subprocess.run(
-        ["gh", "api", f"repos/{repo}/milestones?state=all&per_page=100", "--jq", ".[].title"],
-        check=True, text=True, capture_output=True,
-    ).stdout
-    return {l for l in saida.splitlines() if l}
+def _mostrar(acao: str, detalhe: str) -> None:
+    print(f"  [dry-run] {acao}: {detalhe}")
 
 
 def importar(repo: str, responsaveis: dict[str, str], projeto: str | None, dry_run: bool) -> None:
@@ -231,36 +230,61 @@ def importar(repo: str, responsaveis: dict[str, str], projeto: str | None, dry_r
         print(f"Aviso: sem usuário do GitHub para {sorted(sem_dono)}; essas issues ficam sem assignee.")
 
     print("\nLabels")
+    labels_existentes = set() if dry_run else {l["name"] for l in _api(f"repos/{repo}/labels?per_page=100")}
     for nome, (cor, descricao) in LABELS.items():
-        _gh(["gh", "label", "create", nome, "--repo", repo, "--color", cor,
-             "--description", descricao, "--force"], dry_run)
+        dados = {"color": cor, "description": descricao}
+        if dry_run:
+            _mostrar("label", nome)
+        elif nome in labels_existentes:
+            _api(f"repos/{repo}/labels/{nome}", "PATCH", dados)
+            print(f"  atualizada: {nome}")
+        else:
+            _api(f"repos/{repo}/labels", "POST", {"name": nome, **dados})
+            print(f"  criada: {nome}")
 
     print("\nMilestones")
-    existentes = set() if dry_run else _milestones_existentes(repo)
+    milestones: dict[str, int] = {}
+    if not dry_run:
+        milestones = {m["title"]: m["number"] for m in _api(f"repos/{repo}/milestones?state=all&per_page=100")}
     for titulo, data in MILESTONES.items():
-        if titulo in existentes:
+        if dry_run:
+            _mostrar("milestone", f"{titulo} (entrega {data})")
+        elif titulo in milestones:
             print(f"  já existe: {titulo}")
-            continue
-        _gh(["gh", "api", f"repos/{repo}/milestones", "-f", f"title={titulo}",
-             "-f", f"due_on={data}T23:59:59Z"], dry_run)
+        else:
+            criada = _api(f"repos/{repo}/milestones", "POST", {"title": titulo, "due_on": f"{data}T23:59:59Z"})
+            milestones[titulo] = criada["number"]
+            print(f"  criada: {titulo}")
 
     print("\nIssues")
-    ja_criadas = set() if dry_run else _titulos_existentes(repo)
+    ja_criadas: set[str] = set()
+    if not dry_run:
+        # o endpoint de issues também devolve PRs; eles não contam aqui
+        ja_criadas = {
+            i["title"] for i in _api(f"repos/{repo}/issues?state=all&per_page=100") if "pull_request" not in i
+        }
     for issue in issues:
         if issue.titulo in ja_criadas:
             print(f"  já existe: #{issue.numero} {issue.titulo}")
             continue
-        url = _gh(montar_comando_issue(issue, repo, responsaveis), dry_run)
+        payload = montar_payload_issue(issue, milestones, responsaveis)
         if dry_run:
+            dono = payload.get("assignees", ["(sem assignee)"])[0]
+            _mostrar(f"issue #{issue.numero}", f"{issue.titulo} [{issue.sprint}, {dono}, {', '.join(issue.labels)}]")
             continue
-        criado = numero_da_url(url)
-        print(f"  criada: {url}")
-        if criado is not None and criado != issue.numero:
-            print(f"  ATENÇÃO: esperava #{issue.numero}, o GitHub criou #{criado}. "
+        criada = _api(f"repos/{repo}/issues", "POST", payload)
+        print(f"  criada: #{criada['number']} {issue.titulo}")
+        if criada["number"] != issue.numero:
+            print(f"  ATENÇÃO: esperava #{issue.numero}, o GitHub criou #{criada['number']}. "
                   "As referências '#N' nos textos podem apontar para a issue errada.")
+        if responsaveis.get(issue.responsavel) and not criada.get("assignees"):
+            print(f"  ATENÇÃO: {responsaveis[issue.responsavel]} não foi atribuído "
+                  "(convite de colaborador pendente?)")
         if projeto:
-            dono, _, numero_projeto = projeto.partition("/")
-            _gh(["gh", "project", "item-add", numero_projeto, "--owner", dono, "--url", url], dry_run)
+            # Projects só existem na API GraphQL; precisa do escopo "project" no gh
+            dono_proj, _, numero_projeto = projeto.partition("/")
+            subprocess.run(["gh", "project", "item-add", numero_projeto, "--owner", dono_proj,
+                            "--url", criada["html_url"]], check=True, text=True, capture_output=True)
 
     print("\nPronto.")
 

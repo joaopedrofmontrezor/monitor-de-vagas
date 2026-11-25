@@ -18,6 +18,8 @@ a partir dos arquivos em `backlog/`. Cada issue é um `.md` com um cabeçalho si
    gh auth login
    gh auth refresh -s project   # só se for usar --projeto
    ```
+   O importador usa só a API REST do GitHub (`gh api`). Apenas o `--projeto` depende da
+   API GraphQL e do escopo `project`.
 5. **Crie o board** em *Organização → Projects → New project → Board* e anote o número
    dele (aparece na URL: `.../projects/1`).
 6. **Teste sem alterar nada:**
