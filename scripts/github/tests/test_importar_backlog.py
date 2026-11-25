@@ -3,7 +3,7 @@ from importar_backlog import (
     ErroBacklog,
     Issue,
     carregar_backlog,
-    montar_comando_issue,
+    montar_payload_issue,
     numero_da_url,
     parse_issue,
     parse_responsaveis,
@@ -95,17 +95,19 @@ def test_parse_responsaveis_rejeita_invalidos(par):
         parse_responsaveis([par])
 
 
-def test_montar_comando_com_e_sem_assignee():
+def test_montar_payload_com_e_sem_assignee():
     issue = _issue(7, labels=["feat", "coleta"], responsavel="joao")
 
-    sem = montar_comando_issue(issue, "org/repo", {})
-    assert sem[:5] == ["gh", "issue", "create", "--repo", "org/repo"]
-    assert "--assignee" not in sem
-    assert sem.count("--label") == 2
-    assert sem[sem.index("--milestone") + 1] == "Sprint 1"
+    sem = montar_payload_issue(issue, {"Sprint 1": 4}, {})
+    assert sem["title"] == issue.titulo
+    assert sem["labels"] == ["feat", "coleta"]
+    assert sem["milestone"] == 4
+    assert "assignees" not in sem
+    assert sem["body"].endswith("**Estimativa:** 2 pts")
 
-    com = montar_comando_issue(issue, "org/repo", {"joao": "jp-dev"})
-    assert com[com.index("--assignee") + 1] == "jp-dev"
+    com = montar_payload_issue(issue, {}, {"joao": "jp-dev"})
+    assert com["assignees"] == ["jp-dev"]
+    assert "milestone" not in com
 
 
 @pytest.mark.parametrize(
