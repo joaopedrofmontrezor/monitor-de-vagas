@@ -1,7 +1,7 @@
 # Atalhos do dia a dia. No Windows: winget install ezwinports.make
 # Sem make, rode o comando da direita direto no PowerShell (tabela no README).
 
-.PHONY: up down logs ps test lint format migrate coletar psql
+.PHONY: up down logs ps test lint format migrate migration coletar psql
 
 up:  ## sobe db, api e worker
 	docker compose up -d --build
@@ -26,8 +26,11 @@ format:
 	docker compose run --rm api ruff check --fix .
 	docker compose run --rm api ruff format .
 
-migrate:  ## passa a rodar o Alembic na issue 3
-	@echo make migrate chega com a issue 3, Alembic
+migrate:  ## aplica as migrations pendentes (cria/atualiza as tabelas)
+	docker compose run --rm api alembic upgrade head
+
+migration:  ## gera migration a partir dos models. Uso: make migration m="adiciona perfis"
+	docker compose run --rm api alembic revision --autogenerate -m "$(m)"
 
 coletar:  ## passa a rodar o pipeline uma vez na issue 4
 	@echo make coletar chega com a issue 4, worker e pipeline
