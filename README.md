@@ -5,7 +5,7 @@ agendados, guarda sem duplicatas, cruza com o perfil de cada usuário e avisa po
 Telegram e e-mail. Um painel mostra quantas vagas chegam por dia e por área.
 
 > **Status:** em construção (Sprint 1 de 2). Hoje sobem o banco, a API com `/health` e
-> o processo `worker`. Coleta, alertas e telas chegam nas próximas issues.
+> `GET /vagas` (lista com filtros e paginação) e o processo `worker`. Coleta, alertas e telas chegam nas próximas issues.
 
 ## Como funciona
 
