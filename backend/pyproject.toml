@@ -17,6 +17,9 @@ dependencies = [
     "pydantic-settings>=2.16",
     "httpx>=0.28",
     "beautifulsoup4>=4.15",
+    "alembic>=1.16",
+    # 3.x: a 4.0 muda toda a API e ainda não é estável. Usado na issue #4.
+    "apscheduler>=3.11,<4",
 ]
 
 [project.optional-dependencies]
@@ -38,6 +41,11 @@ target-version = "py312"
 # E/F: erros básicos · I: ordem dos imports · UP: sintaxe moderna
 # B: bugs comuns · SIM: simplificações
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+# A pasta backend/alembic/ (migrations) tem o mesmo nome do pacote alembic;
+# sem isto o ruff acha que `from alembic import op` é import do próprio projeto.
+known-third-party = ["alembic"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

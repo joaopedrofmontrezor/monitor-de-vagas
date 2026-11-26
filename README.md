@@ -77,6 +77,13 @@ Depois confira:
 docker compose ps
 ```
 
+Na primeira vez (e sempre que alguém adicionar uma migration), crie/atualize as
+tabelas do banco:
+
+```powershell
+docker compose run --rm api alembic upgrade head
+```
+
 Os serviços `db`, `api` e `worker` devem aparecer como `running` (o `db` e a `api`
 como `healthy`).
 
@@ -93,7 +100,8 @@ Com `make` instalado, use a coluna da esquerda. Sem `make`, a da direita faz o m
 | `make lint` | `docker compose run --rm api ruff check .` |
 | `make format` | `docker compose run --rm api ruff format .` |
 | `make psql` | `docker compose exec db psql -U monitor -d monitor_vagas` |
-| `make migrate` | chega com a issue #3 |
+| `make migrate` | `docker compose run --rm api alembic upgrade head` |
+| `make migration m="..."` | `docker compose run --rm api alembic revision --autogenerate -m "..."` |
 | `make coletar` | chega com a issue #4 |
 
 ### 5. Rodar os testes fora do Docker (opcional)
@@ -122,7 +130,8 @@ pytest
 ```
 
 Os testes de integração precisam do banco: com o `docker compose up` rodando, eles
-usam o Postgres do container pela porta 5432. Sem o banco, eles são pulados (aparecem
+usam o Postgres do container pela porta 5432 e aplicam as migrations sozinhos antes
+de rodar. Sem o banco, eles são pulados (aparecem
 como `SKIPPED`), e os testes unitários rodam normalmente.
 
 Se o PowerShell bloquear o `Activate.ps1`, libere scripts só para o seu usuário:
