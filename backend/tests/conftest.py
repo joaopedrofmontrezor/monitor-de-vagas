@@ -8,6 +8,15 @@ from app.db import engine
 from app.main import app
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--exigir-banco",
+        action="store_true",
+        default=False,
+        help="falha, em vez de pular, quando o Postgres não responde (usado no CI)",
+    )
+
+
 @pytest.fixture
 def client():
     with TestClient(app) as c:
@@ -25,9 +34,11 @@ def sobrescrever_db():
 
 
 @pytest.fixture(scope="session")
-def banco_disponivel():
+def banco_disponivel(request):
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
     except OperationalError:
+        if request.config.getoption("--exigir-banco"):
+            pytest.fail("Postgres indisponível e o --exigir-banco foi passado")
         pytest.skip("Postgres indisponível; rode `make up` para os testes de integração")
