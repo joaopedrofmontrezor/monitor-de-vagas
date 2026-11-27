@@ -1,6 +1,8 @@
 import re
 
 from app.coletores.base import Coletor
+from app.coletores.greenhouse import ColetorGreenhouse, empresas_configuradas
+from app.config import settings
 
 INTERVALO_MINIMO_HORAS = 6
 _NOME_VALIDO = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -45,4 +47,6 @@ class RegistroColetores:
 
 
 def registro_padrao() -> RegistroColetores:
-    return RegistroColetores()
+    registro = RegistroColetores()
+    registro.registrar(ColetorGreenhouse(empresas_configuradas(settings.greenhouse_empresas)))
+    return registro

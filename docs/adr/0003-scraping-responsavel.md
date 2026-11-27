@@ -28,10 +28,19 @@ no robots.txt e proíbe nos termos.
 
 ## Decisão
 
-1. **Fonte A (#8): Greenhouse Job Board API.** Endpoint
-   `GET https://boards-api.greenhouse.io/v1/boards/{empresa}/jobs?content=true`.
-   O coletor recebe uma lista de empresas (configurável) e fica só com as vagas cujo
-   título indica estágio (`estágio`, `estagiário(a)`, `intern`, `internship`).
+1. **Fonte A (#8): Greenhouse Job Board API.** O coletor recebe uma lista de
+   empresas (36 tokens levantados em 27/11, configurável por `GREENHOUSE_EMPRESAS`)
+   e, para cada uma:
+   - lista as vagas com `GET https://boards-api.greenhouse.io/v1/boards/{empresa}/jobs`,
+     **sem** `content=true` (alguns quadros passam de 400 KB só com os títulos);
+   - fica só com as vagas cujo título indica estágio (`estágio`, `estagiário(a)`,
+     `intern`, `internship`, **como palavra inteira**, sem acento e sem maiúscula:
+     "Auditoria Interna" e "Internalização" não contam) e cujo `location.name` está
+     no Brasil (cita Brasil/Brazil ou é uma cidade da tabela da normalização);
+   - busca o detalhe (`/jobs/{id}`, com a descrição) só dessas vagas. Detalhe com
+     404 = vaga saiu do ar, é ignorada; outro erro mantém a vaga sem descrição.
+   - Token que responde 404 (empresa trocou o nome, como `wellhub` → `gympass`) vira
+     erro em `execucoes_coleta.erro`, sem parar as outras empresas.
 2. **Fonte B (#13): repositórios de vagas do GitHub**, via
    `GET https://api.github.com/repos/{dono}/{repo}/issues?labels=...&state=open`,
    filtrando pela label de estágio de cada repositório (`Estágio` no frontendbr,

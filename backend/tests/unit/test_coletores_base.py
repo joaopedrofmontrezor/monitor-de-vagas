@@ -88,5 +88,5 @@ def test_coletor_falso_cumpre_o_protocolo():
     assert all(isinstance(v, VagaColetada) for v in vagas)
 
 
-def test_registro_padrao_comeca_vazio_ate_a_issue_8():
-    assert registro_padrao().nomes() == []
+def test_registro_padrao_tem_o_coletor_do_greenhouse():
+    assert registro_padrao().nomes() == ["greenhouse"]

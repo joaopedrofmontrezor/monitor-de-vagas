@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     coleta_intervalo_horas: int | None = None
 
+    greenhouse_empresas: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:
