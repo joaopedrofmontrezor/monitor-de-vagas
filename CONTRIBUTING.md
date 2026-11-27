@@ -118,7 +118,8 @@ Se um hook corrigir arquivos, o commit é interrompido: confira as mudanças, ro
 - Sem comentários nem docstrings nos arquivos `.py`. Nomes claros explicam o quê; o
   porquê das decisões fica nos ADRs, no README e na descrição do PR. Arquivos de
   configuração (`.env.example`, `docker-compose.yml`, `Makefile`...) podem ter
-  comentários de instrução.
+  comentários de instrução. O CI confere isso; para checar antes, na raiz do repositório:
+  `python scripts/ci/checar_comentarios.py backend`.
 - Siga a estrutura de pastas: regra de negócio em `services/` (funções puras, sem
   banco e sem rede), queries em `repositories/`, rotas em `api/routes/`.
 - Coletores sempre usam o cliente `coletores/http.py` e têm fixture em

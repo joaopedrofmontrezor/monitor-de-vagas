@@ -23,8 +23,9 @@ Um repositório só, com as pastas `backend/`, `frontend/`, `docs/` e `scripts/`
 - Issues, ADRs e histórico ficam juntos, o que facilita explicar o projeto em entrevista.
 
 **Contra (e como lidamos)**
-- O CI rodaria tudo a cada PR. Resolvido na #2 com filtro `paths:`: o workflow do
-  back só roda quando `backend/` muda, o do front quando `frontend/` muda.
+- O CI rodaria tudo a cada PR. Resolvido na #2 com um workflow só (`ci.yml`) e um
+  job por pasta: o job do back só roda quando `backend/` muda, o do front quando
+  `frontend/` muda, e o job `ci-ok` resume o resultado (é o check obrigatório da `main`).
 - Deploy separado (Vercel para o front, Render para a API) precisa apontar para a
   subpasta certa. As duas plataformas aceitam "root directory"; fica para a Sprint 3.
 
