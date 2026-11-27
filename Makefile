@@ -3,14 +3,14 @@
 
 .PHONY: up down logs ps test lint format migrate migration coletar psql
 
-up:  ## sobe db, api e worker
+up:  ## sobe db, api, worker e frontend
 	docker compose up -d --build
 
 down:  ## para tudo (os dados do banco continuam no volume)
 	docker compose down
 
-logs:  ## acompanha os logs da api e do worker
-	docker compose logs -f api worker
+logs:  ## acompanha os logs da api, do worker e do frontend
+	docker compose logs -f api worker frontend
 
 ps:
 	docker compose ps
@@ -32,8 +32,8 @@ migrate:  ## aplica as migrations pendentes (cria/atualiza as tabelas)
 migration:  ## gera migration a partir dos models. Uso: make migration m="adiciona perfis"
 	docker compose run --rm api alembic revision --autogenerate -m "$(m)"
 
-coletar:  ## passa a rodar o pipeline uma vez na issue 4
-	@echo make coletar chega com a issue 4, worker e pipeline
+coletar:  ## roda o pipeline uma vez, na hora. Só um coletor: make coletar c=greenhouse
+	docker compose run --rm worker python -m app.worker.coletar $(c)
 
 psql:  ## abre o psql dentro do container do banco
 	docker compose exec db psql -U monitor -d monitor_vagas

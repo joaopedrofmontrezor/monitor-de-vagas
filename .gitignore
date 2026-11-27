@@ -14,6 +14,10 @@ htmlcov/
 # Node
 node_modules/
 .next/
+coverage/
+*.tsbuildinfo
+# gerado pelo `next dev`/`next build` (e tem comentário, que a regra do time proíbe)
+next-env.d.ts
 
 # Segredos e ambiente
 .env
