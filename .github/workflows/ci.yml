@@ -49,6 +49,8 @@ jobs:
               - '.env.example'
               - 'backend/Dockerfile'
               - 'backend/pyproject.toml'
+              - 'frontend/Dockerfile'
+              - 'frontend/package-lock.json'
               - '.github/workflows/ci.yml'
 
   backend:
@@ -110,6 +112,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npx tsc --noEmit
+      - run: npm test
       - run: npm run build
 
   scripts:
@@ -140,6 +143,8 @@ jobs:
         run: docker compose config --quiet
       - name: docker build do backend
         run: docker build --tag monitor-de-vagas-backend:ci backend
+      - name: docker build do frontend
+        run: docker build --tag monitor-de-vagas-frontend:ci frontend
 
   ci-ok:
     needs: [mudancas, backend, frontend, scripts, infra]

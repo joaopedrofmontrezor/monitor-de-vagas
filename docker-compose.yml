@@ -1,5 +1,5 @@
 # Ambiente local completo: `make up` (ou `docker compose up -d --build`).
-# O serviço `frontend` entra na issue #10 e o `mailpit` na #20.
+# O `mailpit` entra na issue #20.
 
 x-backend: &backend
   build: ./backend
@@ -44,6 +44,27 @@ services:
   worker:
     <<: *backend
     command: python -m app.worker.scheduler
+
+  frontend:
+    build: ./frontend
+    environment:
+      # O Next busca as vagas no servidor (Server Component), então fala com a API
+      # pela rede do compose. O navegador nunca chama a API direto (sem CORS).
+      API_URL: http://api:8000
+      # Mesmo motivo do WATCHFILES_FORCE_POLLING do backend: no Windows o watcher
+      # nem sempre percebe as mudanças dos arquivos montados.
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "${FRONT_PORTA:-3000}:3000"
+    volumes:
+      - ./frontend:/app
+      # node_modules e .next ficam dentro do container (volumes anônimos): os do
+      # Windows não servem no Linux e deixariam o dev server lento.
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
   pgdata:
