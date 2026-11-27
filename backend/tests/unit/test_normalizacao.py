@@ -2,6 +2,7 @@ import pytest
 
 from app.services.normalizacao import (
     detectar_remoto,
+    e_cidade_conhecida,
     limpar_html,
     limpar_titulo,
     normalizar_cidade,
@@ -125,3 +126,19 @@ def test_limpar_html_com_br_e_espacos():
 def test_limpar_html_vazio():
     assert limpar_html(None) == ""
     assert limpar_html("") == ""
+
+
+@pytest.mark.parametrize(
+    ("local", "esperado"),
+    [
+        ("Osasco, Sao Paulo, Brazil", True),
+        ("SP", True),
+        ("Híbrido em São Paulo/SP", True),
+        ("Madrid, ES", False),
+        ("Buenos Aires, BA", False),
+        ("Remoto", False),
+        (None, False),
+    ],
+)
+def test_e_cidade_conhecida_so_aceita_cidades_da_tabela(local, esperado):
+    assert e_cidade_conhecida(local) is esperado

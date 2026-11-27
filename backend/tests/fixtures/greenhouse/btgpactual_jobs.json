@@ -1,0 +1,257 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012001",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012001,
+      "location": {
+        "name": "São Paulo, São Paulo, Brazil"
+      },
+      "metadata": null,
+      "id": 4012001,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2001",
+      "title": "Estagiário(a) de Threat Intelligence",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012002",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012002,
+      "location": {
+        "name": "São Paulo"
+      },
+      "metadata": null,
+      "id": 4012002,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2002",
+      "title": "Estágio em Capacitação e Treinamento",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012003",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012003,
+      "location": {
+        "name": "São Paulo, São Paulo, Brazil"
+      },
+      "metadata": null,
+      "id": 4012003,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2003",
+      "title": "Analista de Auditoria Interna",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012004",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012004,
+      "location": {
+        "name": "Rio de Janeiro, Rio de Janeiro, Brazil"
+      },
+      "metadata": null,
+      "id": 4012004,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2004",
+      "title": "Especialista em Controles Internos",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012005",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012005,
+      "location": {
+        "name": "Campinas, Brazil"
+      },
+      "metadata": null,
+      "id": 4012005,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2005",
+      "title": "Programa BTG Talentos | Estágio de Férias UNICAMP 2027.1",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012006",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012006,
+      "location": {
+        "name": "New York, New York, United States"
+      },
+      "metadata": null,
+      "id": 4012006,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2006",
+      "title": "Investment Banking Summer Intern",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012007",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012007,
+      "location": {
+        "name": "Remote - Brazil"
+      },
+      "metadata": null,
+      "id": 4012007,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2007",
+      "title": "Data Engineering Intern",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012008",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012008,
+      "location": {
+        "name": "Madrid, ES"
+      },
+      "metadata": null,
+      "id": 4012008,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2008",
+      "title": "Estágio | Suporte à Diretoria e Operacional",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012009",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012009,
+      "location": {
+        "name": "São Paulo, São Paulo, Brazil"
+      },
+      "metadata": null,
+      "id": 4012009,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2009",
+      "title": "Estágio Short Job | Automation",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/btgpactual/jobs/4012010",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3012010,
+      "location": {
+        "name": "Belo Horizonte, MG"
+      },
+      "metadata": null,
+      "id": 4012010,
+      "updated_at": "2026-11-25T14:31:07-05:00",
+      "requisition_id": "REQ-2010",
+      "title": "Analista de Internalização de Processos",
+      "company_name": "BTG Pactual",
+      "first_published": "2026-11-10T09:00:00-03:00",
+      "language": "pt-BR"
+    }
+  ],
+  "meta": {
+    "total": 10
+  }
+}

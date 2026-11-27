@@ -130,8 +130,9 @@ def test_desiste_depois_do_maximo_de_tentativas(criar_cliente):
     servidor = Servidor(httpx.Response(500))
     cliente = criar_cliente(servidor, intervalo_por_dominio=0, max_tentativas=3)
 
-    with pytest.raises(ErroHttp, match="status 500 após 3 tentativas"):
+    with pytest.raises(ErroHttp, match="status 500 após 3 tentativas") as erro:
         cliente.get("https://api.exemplo.com/vagas")
+    assert erro.value.status == 500
     assert len(servidor.recebidas) == 3
 
 
@@ -139,8 +140,9 @@ def test_erro_4xx_nao_tenta_de_novo(criar_cliente):
     servidor = Servidor(httpx.Response(404))
     cliente = criar_cliente(servidor)
 
-    with pytest.raises(ErroHttp, match="404"):
+    with pytest.raises(ErroHttp, match="404") as erro:
         cliente.get("https://api.exemplo.com/nao-existe")
+    assert erro.value.status == 404
     assert len(servidor.recebidas) == 1
 
 

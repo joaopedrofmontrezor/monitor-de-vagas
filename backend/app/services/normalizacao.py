@@ -171,6 +171,14 @@ def normalizar_cidade(local: str | None) -> str | None:
     return f"{nome} - {uf}" if uf else nome
 
 
+def e_cidade_conhecida(local: str | None) -> bool:
+    cidade = normalizar_cidade(local)
+    if not cidade:
+        return False
+    nome = cidade.rsplit(" - ", 1)[0]
+    return normalizar_texto(nome) in _CIDADE_POR_NOME
+
+
 def detectar_remoto(*textos: str | None) -> bool:
     for texto in textos:
         normalizado = normalizar_texto(texto)

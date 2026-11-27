@@ -21,7 +21,9 @@ VALIDADE_CACHE_S = 3600.0
 
 
 class ErroHttp(Exception):
-    pass
+    def __init__(self, mensagem: str, status: int | None = None) -> None:
+        super().__init__(mensagem)
+        self.status = status
 
 
 class ClienteHttp:
@@ -89,19 +91,28 @@ class ClienteHttp:
                 resposta = self._http.send(requisicao)
             except httpx.TransportError as exc:
                 motivo = f"falha de rede ({type(exc).__name__})"
+                status = None
                 espera = self._espera_exponencial(tentativa)
             else:
                 if resposta.status_code < 400:
                     return resposta
                 if resposta.status_code != 429 and resposta.status_code < 500:
-                    raise ErroHttp(f"{requisicao.url} respondeu {resposta.status_code}")
+                    raise ErroHttp(
+                        f"{requisicao.url} respondeu {resposta.status_code}",
+                        status=resposta.status_code,
+                    )
                 motivo = f"status {resposta.status_code}"
+                status = resposta.status_code
                 espera = _retry_after(resposta) or self._espera_exponencial(tentativa)
 
             if tentativa == self._max_tentativas:
-                raise ErroHttp(f"{requisicao.url}: {motivo} após {tentativa} tentativas")
+                raise ErroHttp(
+                    f"{requisicao.url}: {motivo} após {tentativa} tentativas", status=status
+                )
             if espera > ESPERA_MAXIMA_S:
-                raise ErroHttp(f"{requisicao.url}: servidor pediu {espera:.0f}s de espera")
+                raise ErroHttp(
+                    f"{requisicao.url}: servidor pediu {espera:.0f}s de espera", status=status
+                )
             log.warning(
                 "%s: %s, nova tentativa em %.1fs (%s/%s)",
                 requisicao.url.host,
