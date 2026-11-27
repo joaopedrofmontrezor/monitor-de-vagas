@@ -5,8 +5,6 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy.orm import Session
 
-from app.db import engine
-
 PASTA_BACKEND = Path(__file__).resolve().parents[2]
 
 
@@ -19,14 +17,14 @@ def criar_config_alembic(conexao) -> Config:
 
 
 @pytest.fixture(scope="session")
-def banco_migrado(banco_disponivel):
-    with engine.begin() as conexao:
+def banco_migrado(banco_disponivel, engine_teste):
+    with engine_teste.begin() as conexao:
         command.upgrade(criar_config_alembic(conexao), "head")
 
 
 @pytest.fixture
-def sessao(banco_migrado):
-    with engine.connect() as conexao:
+def sessao(banco_migrado, engine_teste):
+    with engine_teste.connect() as conexao:
         transacao = conexao.begin()
         sessao = Session(bind=conexao, join_transaction_mode="create_savepoint")
         try:
