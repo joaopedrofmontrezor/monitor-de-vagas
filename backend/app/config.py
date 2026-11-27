@@ -14,6 +14,8 @@ class Settings(BaseSettings):
 
     telegram_bot_token: str = ""
 
+    coleta_intervalo_horas: int | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

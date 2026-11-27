@@ -26,6 +26,13 @@ class VagaColetada:
             raise ValueError(f"tipo inválido {self.tipo!r}; use um de {TIPOS_VAGA}")
 
 
+class ColetaParcial(Exception):
+    def __init__(self, vagas: list[VagaColetada], erros: list[str]) -> None:
+        super().__init__("; ".join(erros))
+        self.vagas = vagas
+        self.erros = erros
+
+
 class Coletor(Protocol):
     nome: str
     intervalo_horas: int
